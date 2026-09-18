@@ -269,14 +269,17 @@ void main(){
           }
         }
         // neon signs on mid/near buildings
-        if (li > 0 && signRoll < 0.22 * L.depth + 0.08 && bh > 90) {
-          const word = SIGN_WORDS[Math.floor(sign[0] * SIGN_WORDS.length)];
-          const vertical = sign[1] < 0.6;
-          const size = Math.round(9 + L.depth * 6);
+        const word = SIGN_WORDS[Math.floor(sign[0] * SIGN_WORDS.length)];
+        const vertical = sign[1] < 0.6;
+        const size = Math.round(9 + L.depth * 6);
+        // must match drawSign's box: the whole sign has to sit on the facade, above the ground
+        const signH = vertical ? [...word].length * size * 1.05 + 6 : size + 8;
+        const room = bh - 14 - signH - 8;
+        if (li > 0 && signRoll < 0.22 * L.depth + 0.08 && room > 0) {
           S.signs.push({
             layer: li, word, vertical, size,
             x: x + (vertical ? (sign[2] < 0.5 ? 2 : w - size - 4) : w / 2),
-            y: top + 14 + sign[3] * Math.min(bh * 0.4, 120),
+            y: top + 14 + sign[3] * Math.min(room, bh * 0.4, 120),
             color: accents[Math.floor(sign[4] * 3)], flick: sign[5],
           });
         }
