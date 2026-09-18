@@ -116,8 +116,13 @@
           NX.h('span', { class: 'num', text: n <= 9 ? n : '' }),
           NX.h('img', { class: 'fav', src: NX.favicon(l.url), alt: '', loading: 'lazy', onerror: (e) => e.target.classList.add('none') }),
           NX.h('span', { class: 'ln', text: l.name }));
-        a.addEventListener('mouseenter', () => NX.sfx('tick'));
-        a.addEventListener('click', (e) => { if (document.body.classList.contains('editing')) { e.preventDefault(); linkModal(l, g); } });
+        a.addEventListener('mouseenter', () => { NX.sfx('tick'); NX.warm(l.url); });
+        a.addEventListener('focus', () => NX.warm(l.url));
+        a.addEventListener('click', (e) => {
+          if (document.body.classList.contains('editing')) { e.preventDefault(); linkModal(l, g); return; }
+          // plain left click in this tab → show the connecting screen; modified clicks open elsewhere
+          if (!nt && e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) NX.leaving(l.url);
+        });
         const li = NX.h('li', {}, a);
         if (document.body.classList.contains('editing')) dnd(li, g, l);
         ul.append(li);

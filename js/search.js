@@ -76,7 +76,7 @@
     if (sub) out.push({ kind: 'url', icon: '↗', label: `reddit.com/r/${sub[1]}`, sub: 'сабреддит', go: (nt) => NX.openUrl(`https://www.reddit.com/r/${sub[1]}/`, nt) });
 
     const url = asUrl(t);
-    if (url) out.push({ kind: 'url', icon: '↗', label: url.replace(/^https?:\/\//, ''), sub: 'перейти', go: (nt) => NX.openUrl(url, nt) });
+    if (url) out.push({ kind: 'url', url, icon: '↗', label: url.replace(/^https?:\/\//, ''), sub: 'перейти', go: (nt) => NX.openUrl(url, nt) });
 
     const bm = allLinks().map((l) => ({ l, s: Math.max(NX.fuzzy(t, l.name), NX.fuzzy(t, NX.domainOf(l.url)) - 5) }))
       .filter((x) => x.s > 3).sort((a, b) => b.s - a.s).slice(0, 5);
@@ -92,7 +92,7 @@
   }
 
   function bmItem(l) {
-    return { kind: 'bm', icon: NX.h('img', { src: NX.favicon(l.url), alt: '', loading: 'lazy' }), label: l.name, sub: `${l.group} · ${NX.domainOf(l.url)}`, go: (nt) => NX.openUrl(l.url, nt) };
+    return { kind: 'bm', url: l.url, icon: NX.h('img', { src: NX.favicon(l.url), alt: '', loading: 'lazy' }), label: l.name, sub: `${l.group} · ${NX.domainOf(l.url)}`, go: (nt) => NX.openUrl(l.url, nt) };
   }
 
   function addHistory(q) {
@@ -120,7 +120,10 @@
     });
     list.classList.add('open');
   }
-  function mark() { NX.$$('.sg', list).forEach((li, i) => li.classList.toggle('sel', i === sel)); }
+  function mark() {
+    NX.$$('.sg', list).forEach((li, i) => li.classList.toggle('sel', i === sel));
+    if (items[sel] && items[sel].url) NX.warm(items[sel].url);
+  }
 
   function run(newTab) {
     const it = items[sel];
@@ -134,6 +137,7 @@
     items = build(input.value);
     sel = 0;
     render();
+    if (items[0] && items[0].url) NX.warm(items[0].url);
     NX.$('#search-hint').textContent = input.value ? '⏎' : '/';
   }
 
@@ -158,7 +162,7 @@
       input = NX.$('#q'); list = NX.$('#suggest');
       paintEngine();
       input.addEventListener('input', update);
-      input.addEventListener('focus', update);
+      input.addEventListener('focus', () => { NX.warm(engine().url); update(); });
       input.addEventListener('blur', () => setTimeout(() => list.classList.remove('open'), 80));
       input.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowDown') { e.preventDefault(); sel = (sel + 1) % Math.max(1, items.length); mark(); }

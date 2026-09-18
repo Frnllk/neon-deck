@@ -92,6 +92,18 @@ body.no-scanlines .fx-scanlines, body.no-noise .fx-noise { display: none; }
 #boot pre { margin: 0; font: 13px/1.7 var(--f-mono); color: var(--b); text-shadow: 0 0 8px rgba(var(--b-rgb), .7); white-space: pre-wrap; }
 #boot.done { opacity: 0; filter: blur(4px) brightness(2); }
 
+/* ░░ LEAVING ░░ */
+#leaving { position: fixed; inset: 0; z-index: 95; display: none; place-items: center; pointer-events: none; background: rgba(var(--bg-rgb), .6); }
+body.leaving #leaving { display: grid; animation: leavein .18s ease-out; }
+body.leaving #app { opacity: .35; transform: scale(.985); filter: saturate(.4); transition: opacity .2s, transform .2s, filter .2s; }
+.leaving-box { min-width: 320px; padding: 18px 22px; background: var(--panel-solid); border: 1px solid var(--a); box-shadow: 8px 8px 0 rgba(var(--a-rgb), .5), 0 0 40px rgba(var(--a-rgb), .3); }
+.leaving-host { font: 700 22px var(--f-display); color: #fff; margin: 6px 0 12px; text-shadow: -2px 0 rgba(var(--a-rgb), .8), 2px 0 rgba(var(--b-rgb), .8); }
+.leaving-host b { font-weight: 700; }
+.leaving-bar { position: relative; height: 3px; overflow: hidden; background: rgba(255,255,255,.08); }
+.leaving-bar i { position: absolute; top: 0; bottom: 0; width: 35%; background: linear-gradient(90deg, transparent, var(--a), var(--b)); animation: scanbar .8s linear infinite; }
+@keyframes scanbar { from { left: -35%; } to { left: 100%; } }
+@keyframes leavein { from { opacity: 0; } }
+
 /* ░░ APP LAYOUT ░░ */
 #app { position: relative; z-index: 10; min-height: 100vh; display: flex; flex-direction: column; padding: 14px 28px 12px; }
 

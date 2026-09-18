@@ -110,9 +110,37 @@ window.NX = window.NX || {};
     } catch { /* audio unavailable */ }
   }
 
+  // Warm up DNS + TCP + TLS for an origin the user is likely to open next.
+  const warmed = new Set();
+  function warm(url) {
+    let origin;
+    try { origin = new URL(url).origin; } catch { return; }
+    if (!/^https?:/.test(origin) || warmed.has(origin)) return;
+    warmed.add(origin);
+    document.head.append(h('link', { rel: 'preconnect', href: origin }), h('link', { rel: 'dns-prefetch', href: origin }));
+  }
+
+  // Leaving this tab: freeze the scene so the GPU is free for the next page,
+  // and show a "connecting" screen so the click feels instant while it loads.
+  function leaving(url) {
+    NX.Scene && NX.Scene.pause();
+    NX.Pixel && NX.Pixel.stop();
+    const box = $('#leaving');
+    if (box) box.querySelector('b').textContent = domainOf(url) || url;
+    document.body.classList.add('leaving');
+  }
+  // Coming back via the back button restores the page from bfcache.
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    document.body.classList.remove('leaving');
+    NX.Scene && NX.Scene.resume();
+    NX.Deck && NX.Deck.pickInitial();
+  });
+
   function openUrl(url, newTab) {
-    if (newTab) window.open(url, '_blank', 'noopener');
-    else window.location.href = url;
+    if (newTab) { window.open(url, '_blank', 'noopener'); return; }
+    leaving(url);
+    window.location.href = url;
   }
 
   function isTyping() {
@@ -125,5 +153,5 @@ window.NX = window.NX || {};
   const on = (ev, fn) => (bus[ev] = bus[ev] || []).push(fn);
   const emit = (ev, data) => (bus[ev] || []).forEach((fn) => fn(data));
 
-  Object.assign(NX, { on, emit, $, $$, h, esc, clamp, lerp, pad, uid, debounce, rng, hexToRgb, domainOf, favicon, fuzzy, toast, sfx, openUrl, isTyping });
+  Object.assign(NX, { on, emit, $, $$, h, esc, clamp, lerp, pad, uid, debounce, rng, hexToRgb, domainOf, favicon, fuzzy, toast, sfx, warm, leaving, openUrl, isTyping });
 })(window.NX);

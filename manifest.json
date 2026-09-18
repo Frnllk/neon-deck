@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NEON//DECK",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Frnllk",
   "homepage_url": "https://github.com/Frnllk/neon-deck",
   "description": "Киберпанк-HUD новая вкладка: живая сцена, закладки, погода, поиск, задачи.",

@@ -572,6 +572,8 @@ void main(){
     },
     // one static frame when animation is disabled
     still() { stop(); drawSky(0); drawCity(0, 0); },
+    pause: stop,
+    resume() { if (S.opts.enabled) start(); },
     setOptions(opts) {
       S.opts = opts;
       S.sun = currentSun();
