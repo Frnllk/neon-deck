@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "NEON//DECK",
+  "version": "1.0.0",
+  "author": "Frnllk",
+  "homepage_url": "https://github.com/Frnllk",
+  "description": "Киберпанк-HUD новая вкладка: живая сцена, закладки, погода, поиск, задачи.",
+  "icons": {
+    "48": "icons/icon.svg",
+    "96": "icons/icon.svg"
+  },
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "permissions": ["storage", "unlimitedStorage"],
+  "optional_permissions": ["bookmarks"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "neon-deck@frnllk",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": { "required": ["locationInfo", "bookmarksInfo"] }
+    }
+  }
+}

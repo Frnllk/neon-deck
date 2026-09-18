@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Новая вкладка</title>
+  <link rel="icon" href="icons/icon.svg">
+  <link rel="stylesheet" href="css/main.css">
+  <style id="custom-css"></style>
+</head>
+<body>
+  <!-- ░░ LIVING SCENE ░░ -->
+  <div id="scene" aria-hidden="true">
+    <canvas id="sky"></canvas>
+    <canvas id="city"></canvas>
+  </div>
+  <div class="fx fx-vignette" aria-hidden="true"></div>
+  <div class="fx fx-scanlines" aria-hidden="true"></div>
+  <div class="fx fx-noise" aria-hidden="true"></div>
+  <div class="fx fx-flash" id="flash" aria-hidden="true"></div>
+
+  <!-- ░░ BOOT ░░ -->
+  <div id="boot" aria-hidden="true"><pre id="boot-log"></pre></div>
+
+  <!-- ░░ HUD ░░ -->
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">◢◤</span>
+        <span class="brand-name glitch" data-text="NEON//DECK">NEON//DECK</span>
+        <span class="chip" id="chip-net">NET ● ONLINE</span>
+        <span class="chip" id="chip-fps">FPS --</span>
+      </div>
+      <div class="ticker" aria-label="Лента"><div class="ticker-track" id="ticker"></div></div>
+      <nav class="tools">
+        <button class="tool" id="btn-edit" title="Режим редактирования (E)">✎<span>EDIT</span></button>
+        <button class="tool" id="btn-help" title="Горячие клавиши (?)">?<span>KEYS</span></button>
+        <button class="tool" id="btn-settings" title="Настройки (,)">⚙<span>SYS</span></button>
+      </nav>
+    </header>
+
+    <main class="grid">
+      <section class="hero reveal" id="hero">
+        <div class="hero-meta">
+          <span class="label">// LOCAL_TIME</span>
+          <span class="label" id="hero-tz"></span>
+        </div>
+        <div class="clock">
+          <span class="clock-time glitch" id="clock" data-text="00:00">00:00</span>
+          <span class="clock-sec" id="clock-sec">00</span>
+        </div>
+        <div class="hero-line">
+          <span class="date" id="date"></span>
+          <span class="sep">▸</span>
+          <span class="greet" id="greet"></span>
+        </div>
+        <div class="dayprogress" title="Прогресс дня"><div class="dayprogress-bar" id="dayprogress"></div><span id="dayprogress-label"></span></div>
+      </section>
+
+      <section class="search-wrap reveal" id="search-wrap">
+        <form class="search" id="search" autocomplete="off">
+          <button type="button" class="engine" id="engine" title="Сменить поисковик (Tab на пустой строке)">G</button>
+          <span class="prompt">&gt;_</span>
+          <input id="q" type="text" spellcheck="false" placeholder="поиск, адрес, !бэнг, 2+2 или закладка…" aria-label="Поиск">
+          <span class="search-hint" id="search-hint">/</span>
+        </form>
+        <ul class="suggest" id="suggest" role="listbox"></ul>
+      </section>
+
+      <section class="deck reveal" id="deck">
+        <div class="deck-stack" aria-hidden="true"></div>
+        <div class="deck-card">
+          <figure class="deck-img" id="deck-img" title="Перетащи сюда картинку или GIF">
+            <canvas id="pixel" width="96" height="120"></canvas>
+            <img id="deck-photo" alt="" hidden>
+            <figcaption class="deck-img-cap" id="deck-img-cap">LIVE FEED</figcaption>
+            <div class="deck-img-drop">DROP IMAGE</div>
+          </figure>
+          <div class="deck-body">
+            <div class="deck-head">
+              <h2 class="deck-title" id="deck-title">Добро пожаловать в сеть.</h2>
+            </div>
+            <div class="groups" id="groups"></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="panel weather reveal" id="weather">
+          <header class="panel-head"><span class="panel-title">SYS://WEATHER</span><span class="panel-sub" id="w-place">—</span></header>
+          <div class="panel-body" id="w-body"><div class="loading">СИНХРОНИЗАЦИЯ…</div></div>
+        </section>
+
+        <section class="panel utils reveal" id="utils">
+          <header class="panel-head tabs">
+            <button class="tab active" data-tab="quests">QUEST_LOG <span class="tab-badge" id="todo-count">0</span></button>
+            <button class="tab" data-tab="timer">FOCUS <span class="tab-badge" id="pomo-badge"></span></button>
+            <button class="tab" data-tab="notes">NOTES</button>
+          </header>
+          <div class="panel-body">
+            <div class="tabpane active" data-pane="quests" id="todo">
+              <form class="todo-add" id="todo-form" autocomplete="off">
+                <span class="prompt">+</span>
+                <input id="todo-input" type="text" placeholder="новая задача… (! в начале — главная)" spellcheck="false">
+              </form>
+              <ul class="todo-list" id="todo-list"></ul>
+              <div class="todo-foot"><span class="label" id="todo-stats"></span><button class="linkbtn" id="todo-clear">очистить выполненные</button></div>
+            </div>
+            <div class="tabpane" data-pane="timer">
+              <div class="pomo">
+                <svg class="pomo-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" class="ring-bg"/><circle cx="50" cy="50" r="44" class="ring-fg" id="pomo-ring"/></svg>
+                <div class="pomo-info">
+                  <div class="pomo-time" id="pomo-time">25:00</div>
+                  <div class="pomo-mode" id="pomo-mode">ФОКУС</div>
+                  <div class="pomo-btns">
+                    <button class="btn" id="pomo-start">СТАРТ</button>
+                    <button class="btn ghost" id="pomo-reset" title="Сбросить">↺</button>
+                    <button class="btn ghost" id="pomo-switch" title="Фокус / перерыв">⇄</button>
+                  </div>
+                  <div class="pomo-count" id="pomo-count"></div>
+                </div>
+              </div>
+            </div>
+            <div class="tabpane" data-pane="notes">
+              <textarea id="notes" spellcheck="false" placeholder="// черновик, сохраняется сам"></textarea>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="bottombar">
+      <span><kbd>/</kbd> поиск</span>
+      <span><kbd>T</kbd> задача</span>
+      <span><kbd>E</kbd> правка</span>
+      <span><kbd>,</kbd> настройки</span>
+      <span><kbd>?</kbd> клавиши</span>
+      <span class="spacer"></span>
+      <span class="label" id="scene-status">SCENE: —</span>
+    </footer>
+  </div>
+
+  <!-- ░░ SETTINGS ░░ -->
+  <aside id="settings" class="drawer" aria-hidden="true">
+    <header class="drawer-head">
+      <span class="panel-title">SYS://CONFIG</span>
+      <button class="tool" id="settings-close" title="Закрыть (Esc)">✕</button>
+    </header>
+    <div class="drawer-body" id="settings-body"></div>
+  </aside>
+
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-box">
+      <header class="panel-head"><span class="panel-title" id="modal-title">EDIT</span></header>
+      <form id="modal-form" class="modal-form" autocomplete="off"></form>
+    </div>
+  </div>
+
+  <div id="help" class="modal" aria-hidden="true">
+    <div class="modal-box">
+      <header class="panel-head"><span class="panel-title">KEYMAP</span></header>
+      <div class="help-body" id="help-body"></div>
+    </div>
+  </div>
+
+  <div id="toasts"></div>
+
+  <script src="js/util.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/pixel.js"></script>
+  <script src="js/clock.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/bookmarks.js"></script>
+  <script src="js/todo.js"></script>
+  <script src="js/focus.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
