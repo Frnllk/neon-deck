@@ -34,7 +34,7 @@
   const px = (x, y, c, w = 1, h = 1) => { ctx.fillStyle = typeof c === 'string' ? c : rgb(c); ctx.fillRect(x, y, w, h); };
 
   function gen() {
-    const r = NX.rng(4242);
+    const r = NX.rng(NX.Scene ? NX.Scene.citySeed() : 4242);
     city = { far: [], near: [], wins: [] };
     for (let x = 0; x < W;) { const w = 6 + Math.floor(r() * 10), h = 18 + Math.floor(r() * 30); city.far.push([x, h, w]); x += w; }
     for (let x = -4; x < W;) {
@@ -137,6 +137,7 @@
       this.start();
     },
     setTheme(th) { theme = th; draw(); },
+    regen() { gen(); draw(); },
     start() { if (!timer) { draw(); timer = setInterval(() => !document.hidden && draw(), 125); } },
     stop() { clearInterval(timer); timer = null; },
   };

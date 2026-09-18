@@ -62,9 +62,19 @@
       toggle('Звуки интерфейса', () => S().sfx, (v) => (S().sfx = v))));
 
     // ── scene ──
+    const seedLabel = h('span', { class: 'mono', text: `#${NX.Scene.citySeed()}` });
     const seedRow = h('div', { class: 'inline' },
-      h('span', { class: 'mono', text: `#${S().scene.seed}` }),
-      h('button', { class: 'btn ghost', onclick: (e) => { S().scene.seed = Math.floor(Math.random() * 99999); e.target.previousSibling.textContent = `#${S().scene.seed}`; NX.saveSettings(); } }, 'НОВЫЙ ГОРОД'));
+      seedLabel,
+      h('button', { class: 'btn ghost', title: 'Другой город в этой вкладке', onclick: () => {
+        if (S().scene.cityMode === 'fixed') { S().scene.seed = 1 + Math.floor(Math.random() * 99999); NX.saveSettings(); }
+        else NX.Scene.reroll();
+        NX.Pixel.regen();
+        seedLabel.textContent = `#${NX.Scene.citySeed()}`;
+      } }, '↻ ДРУГОЙ'),
+      h('button', { class: 'btn ghost', title: 'Показывать этот город на всех вкладках', onclick: () => {
+        S().scene.seed = NX.Scene.citySeed(); S().scene.cityMode = 'fixed'; NX.saveSettings(); build();
+        NX.toast(`Город #${S().scene.seed} закреплён`);
+      } }, '📌 ЗАКРЕПИТЬ'));
     body.append(section('СЦЕНА',
       toggle('Анимация', () => S().scene.enabled, (v) => (S().scene.enabled = v)),
       select('Качество', [['low', 'Низкое'], ['med', 'Среднее'], ['high', 'Высокое']], () => S().scene.quality, (v) => (S().scene.quality = v)),
@@ -73,7 +83,8 @@
       toggle('Летающий трафик', () => S().scene.traffic, (v) => (S().scene.traffic = v)),
       seg('Время суток', [['auto', 'АВТО'], ['dawn', 'РАССВЕТ'], ['day', 'ДЕНЬ'], ['dusk', 'ЗАКАТ'], ['night', 'НОЧЬ']], () => S().scene.time, (v) => (S().scene.time = v)),
       seg('Погода в сцене', [['auto', 'АВТО'], ['clear', 'ЯСНО'], ['clouds', 'ОБЛАКА'], ['rain', 'ДОЖДЬ'], ['storm', 'ГРОЗА'], ['snow', 'СНЕГ'], ['fog', 'ТУМАН']], () => S().scene.weather, (v) => (S().scene.weather = v)),
-      row('Сид города', seedRow)));
+      seg('Город', [['tab', 'НОВЫЙ НА КАЖДОЙ ВКЛАДКЕ'], ['fixed', 'ВСЕГДА ОДИН']], () => S().scene.cityMode, (v) => { S().scene.cityMode = v; setTimeout(() => { NX.Pixel.regen(); seedLabel.textContent = `#${NX.Scene.citySeed()}`; }); }),
+      row('Текущий город', seedRow)));
 
     // ── weather ──
     const results = h('ul', { class: 'geo-results' });

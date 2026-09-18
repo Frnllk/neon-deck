@@ -184,10 +184,25 @@ void main(){
   }
   function smooth(a, b, x) { const t = NX.clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); }
 
+  // Each tab gets its own random city (kept in sessionStorage, so it survives
+  // reloads and tab switches); a fixed seed from settings overrides it.
+  function citySeed() {
+    if (S.opts.cityMode === 'fixed') return S.opts.seed || 2077;
+    let s = 0;
+    try { s = +sessionStorage.getItem('nx:citySeed') || 0; } catch { /* storage blocked */ }
+    if (!s) {
+      s = S.tabSeed || 1 + Math.floor(Math.random() * 99999);
+      try { sessionStorage.setItem('nx:citySeed', s); } catch { /* storage blocked */ }
+    }
+    S.tabSeed = s;
+    return s;
+  }
+
   // ── City generation (pre-rendered per layer) ──
   function buildCity() {
     const { W, H } = S;
-    const r = NX.rng(S.opts.seed || 2077);
+    const seed = citySeed();
+    const r = NX.rng(seed);
     const hzY = H * (1 - HZ);
     const bg = rgb01(S.theme.bg);
     const hzc = horizonColor();
@@ -209,8 +224,11 @@ void main(){
       g.scale(S.dpr, S.dpr);
       const body = mixc(hzc, mixc(bg, [0, 0, 0], 0.35), L.tint);
       const edge = mixc(body, rgb01(S.theme.a), 0.18 + 0.15 * (1 - L.depth));
-      let x = -r() * 40;
+      let x = -r() * 40, bi = 0;
       while (x < cw) {
+        // Details (roof, windows, signs) come from a per-building stream so the
+        // skyline itself never shifts when height or time of day change.
+        const d = NX.rng((seed * 7919 + li * 104729 + bi++ * 131) >>> 0);
         const w = L.wMin + r() * (L.wMax - L.wMin);
         const rel = Math.abs((x + w / 2 - margin) / W - 0.5); // taller at the edges, frames the HUD
         const hMul = 0.55 + 1.0 * rel;
@@ -221,12 +239,12 @@ void main(){
         // roof variants
         const roof = r();
         if (roof < 0.22) {
-          const sw = w * (0.3 + r() * 0.4), sh = 8 + r() * 26;
+          const sw = w * (0.3 + d() * 0.4), sh = 8 + d() * 26;
           g.fillRect(x + (w - sw) / 2, top - sh, sw, sh);
         } else if (roof < 0.38) {
-          const ah = 20 + r() * 60 * L.depth + 20;
+          const ah = 20 + d() * 60 * L.depth + 20;
           g.fillRect(x + w / 2 - 1, top - ah, 2, ah);
-          S.beacons.push({ layer: li, x: x + w / 2, y: top - ah, ph: r() * 6 });
+          S.beacons.push({ layer: li, x: x + w / 2, y: top - ah, ph: d() * 6 });
         } else if (roof < 0.46) {
           g.beginPath(); g.moveTo(x, top); g.lineTo(x + w / 2, top - w * 0.35); g.lineTo(x + w, top); g.fill();
         }
@@ -236,32 +254,34 @@ void main(){
         g.fillRect(x, top, w, 1);
         // windows
         const ww = Math.round(2 + L.depth * 2), wh = Math.round(3 + L.depth * 3);
-        const gx = ww + 2 + Math.round(r() * 2), gy = wh + 3;
+        const gx = ww + 2 + Math.round(d() * 2), gy = wh + 3;
         const litP = 0.06 + 0.34 * (1 - day) + 0.05 * li;
-        const palette = r() < 0.5 ? [1, 0.82, 0.55] : [0.62, 0.9, 1];
+        const palette = d() < 0.5 ? [1, 0.82, 0.55] : [0.62, 0.9, 1];
+        const signRoll = d(), sign = [d(), d(), d(), d(), d(), d()];
         for (let wy = top + 6; wy < hzY - wh - 2; wy += gy) {
-          const rowLit = r() < 0.85;
+          const rowLit = d() < 0.85;
           for (let wx = x + 4; wx < x + w - ww - 3; wx += gx) {
-            if (rowLit && r() < litP) {
-              const acc = r() < 0.06;
-              g.fillStyle = acc ? accents[Math.floor(r() * 3)] : css(palette, 0.5 + r() * 0.5);
+            if (rowLit && d() < litP) {
+              const acc = d() < 0.06;
+              g.fillStyle = acc ? accents[Math.floor(d() * 3)] : css(palette, 0.5 + d() * 0.5);
               g.fillRect(wx, wy, ww, wh);
             }
           }
         }
         // neon signs on mid/near buildings
-        if (li > 0 && r() < 0.22 * L.depth + 0.08 && bh > 90) {
-          const word = SIGN_WORDS[Math.floor(r() * SIGN_WORDS.length)];
-          const vertical = r() < 0.6;
+        if (li > 0 && signRoll < 0.22 * L.depth + 0.08 && bh > 90) {
+          const word = SIGN_WORDS[Math.floor(sign[0] * SIGN_WORDS.length)];
+          const vertical = sign[1] < 0.6;
           const size = Math.round(9 + L.depth * 6);
           S.signs.push({
             layer: li, word, vertical, size,
-            x: x + (vertical ? (r() < 0.5 ? 2 : w - size - 4) : w / 2),
-            y: top + 14 + r() * Math.min(bh * 0.4, 120),
-            color: accents[Math.floor(r() * 3)], flick: r(),
+            x: x + (vertical ? (sign[2] < 0.5 ? 2 : w - size - 4) : w / 2),
+            y: top + 14 + sign[3] * Math.min(bh * 0.4, 120),
+            color: accents[Math.floor(sign[4] * 3)], flick: sign[5],
           });
         }
-        x += w + (r() < 0.3 ? r() * 18 : 0);
+        const gapRoll = r(), gap = r();
+        x += w + (gapRoll < 0.3 ? gap * 18 : 0);
       }
       S.layers.push({ canvas: c, depth: L.depth, margin });
     });
@@ -367,6 +387,7 @@ void main(){
     }
     buildCity();
     resetParticles();
+    if (S.theme) drawNow();
   }
 
   function drawSky(t) {
@@ -547,6 +568,8 @@ void main(){
     if (now - fpsT > 1000) { S.fps = Math.round(fpsN / (fpsAcc || 1)); fpsAcc = 0; fpsN = 0; fpsT = now; NX.emit && NX.emit('fps', S.fps); }
   }
 
+  function drawNow() { const t = (performance.now() - t0) / 1000; drawSky(t); drawCity(t, 0); }
+
   function start() {
     if (S.running) return;
     S.running = true; S.lastFrame = 0;
@@ -567,12 +590,26 @@ void main(){
         S.mouseT[0] = (e.clientX / S.W) * 2 - 1;
         S.mouseT[1] = (e.clientY / S.H) * 2 - 1;
       });
-      document.addEventListener('visibilitychange', () => (document.hidden ? stop() : S.opts.enabled && start()));
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) return stop();
+        drawNow();
+        if (S.opts.enabled) start();
+      });
       if (opts.enabled) start(); else this.still();
     },
     // one static frame when animation is disabled
     still() { stop(); drawSky(0); drawCity(0, 0); },
     pause: stop,
+    citySeed,
+    // new random city for this tab only
+    reroll() {
+      const s = 1 + Math.floor(Math.random() * 99999);
+      S.tabSeed = s;
+      try { sessionStorage.setItem('nx:citySeed', s); } catch { /* storage blocked */ }
+      buildCity();
+      drawNow();
+      return s;
+    },
     resume() { if (S.opts.enabled) start(); },
     setOptions(opts) {
       S.opts = opts;

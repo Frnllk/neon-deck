@@ -53,7 +53,7 @@
     settings: {
       name: '',
       theme: 'synthwave',
-      scene: { enabled: true, quality: 'med', fps: 60, parallax: true, time: 'auto', weather: 'auto', seed: 2077, traffic: true },
+      scene: { enabled: true, quality: 'med', fps: 60, parallax: true, time: 'auto', weather: 'auto', cityMode: 'tab', seed: 2077, traffic: true },
       fx: { scanlines: true, glitch: true, noise: true, blur: true, boot: true },
       sfx: false,
       weather: { lat: 55.7558, lon: 37.6173, place: 'Москва' },
