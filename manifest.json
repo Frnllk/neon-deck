@@ -3,7 +3,7 @@
   "name": "NEON//DECK",
   "version": "1.0.0",
   "author": "Frnllk",
-  "homepage_url": "https://github.com/Frnllk",
+  "homepage_url": "https://github.com/Frnllk/neon-deck",
   "description": "Киберпанк-HUD новая вкладка: живая сцена, закладки, погода, поиск, задачи.",
   "icons": {
     "48": "icons/icon.svg",
