@@ -36,22 +36,18 @@
 
 ## Установка
 
-### Быстро, до перезапуска Firefox
-1. Открой `about:debugging#/runtime/this-firefox`
-2. Нажми **«Загрузить временное дополнение…»** и выбери `manifest.json` из этой папки
-3. Открой новую вкладку
+### Из каталога Firefox
+Расширение отправлено в [addons.mozilla.org](https://addons.mozilla.org/firefox/addon/neon-deck/) и сейчас на проверке. Когда проверку пройдёт, ставится в один клик.
 
-### Навсегда
-Обычный Firefox ставит только подписанные дополнения. Подписать можно бесплатно и без публикации в каталоге:
-1. Собери архив, получится `dist/neon-deck.zip`:
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File build.ps1
-   ```
-2. Зайди на https://addons.mozilla.org/developers/addon/submit/distribution
-3. Выбери **«On your own»** (unlisted) и загрузи zip. Автоматическая проверка обычно занимает несколько минут.
-4. Скачай подписанный `.xpi` и перетащи его в окно Firefox
+### Из исходников (для разработки)
+1. Склонируй репозиторий или скачай его zip-архивом.
+2. Открой `about:debugging#/runtime/this-firefox`.
+3. Нажми **«Загрузить временное дополнение…»** и выбери `manifest.json`.
 
-*Альтернатива:* в Firefox Developer Edition или Nightly поставь в `about:config` значение `xpinstall.signatures.required = false` и ставь zip без подписи.
+Временное дополнение живёт до перезапуска Firefox. Собрать архив для загрузки на AMO можно так:
+```powershell
+powershell -ExecutionPolicy Bypass -File build.ps1   # → dist/neon-deck.zip
+```
 
 ## Первые шаги
 - Нажми `,`, чтобы открыть настройки. Там задаются имя, город (поиск или геолокация) и тема.
@@ -69,6 +65,9 @@
 | `,` | настройки |
 | `?` | шпаргалка |
 | `Esc` | закрыть всё |
+
+## Как это сделано
+Большую часть проекта написал **[Claude](https://claude.ai)**, ИИ от Anthropic, работая в Claude Code. Это код, стили, WebGL-сцена, пиксель-арт и тексты. Идея, направление и выбор дизайна, тестирование и публикация — [Frnllk](https://github.com/Frnllk). Сторонних библиотек в проекте нет.
 
 ## Лицензия
 © 2026 [Frnllk](https://github.com/Frnllk). Код распространяется по лицензии [GNU GPL v3](LICENSE): его можно использовать, менять и распространять, но производные работы тоже должны выходить под GPL v3 с открытым исходным кодом. Шрифты идут по лицензии SIL OFL 1.1. Какие данные и куда уходят из расширения, описано в [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
