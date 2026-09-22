@@ -6,8 +6,9 @@
   "homepage_url": "https://github.com/Frnllk/neon-deck",
   "description": "Киберпанк-HUD новая вкладка: живая сцена, закладки, погода, поиск, задачи.",
   "icons": {
-    "48": "icons/icon.svg",
-    "96": "icons/icon.svg"
+    "48": "icons/logo.svg",
+    "96": "icons/logo.svg",
+    "128": "icons/logo-128.png"
   },
   "chrome_url_overrides": {
     "newtab": "newtab.html"

@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd166"/>
+      <stop offset="55%" stop-color="#ff7a3d"/>
+      <stop offset="100%" stop-color="#ff2a6d"/>
+    </linearGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#130a24"/>
+      <stop offset="60%" stop-color="#2a0f36"/>
+      <stop offset="100%" stop-color="#4a1141"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#05d9e8" stop-opacity=".9"/>
+      <stop offset="100%" stop-color="#05d9e8" stop-opacity=".15"/>
+    </linearGradient>
+    <clipPath id="frame"><rect x="4" y="4" width="120" height="120" rx="22"/></clipPath>
+    <clipPath id="above"><rect x="0" y="0" width="128" height="88"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <rect x="0" y="0" width="128" height="128" fill="url(#sky)"/>
+
+    <!-- striped synthwave sun -->
+    <g clip-path="url(#above)">
+      <circle cx="64" cy="54" r="32" fill="url(#sun)"/>
+      <g fill="#2a0f36">
+        <rect x="28" y="57" width="72" height="3"/>
+        <rect x="28" y="64" width="72" height="4"/>
+        <rect x="28" y="73" width="72" height="5"/>
+        <rect x="28" y="83" width="72" height="6"/>
+      </g>
+    </g>
+
+    <!-- skyline: a few chunky towers so it still reads at 16px -->
+    <g fill="#0a0614">
+      <rect x="0" y="62" width="17" height="26"/>
+      <rect x="21" y="72" width="13" height="16"/>
+      <rect x="38" y="66" width="11" height="22"/>
+      <rect x="79" y="70" width="12" height="18"/>
+      <rect x="95" y="58" width="15" height="30"/>
+      <rect x="114" y="68" width="14" height="20"/>
+      <rect x="101" y="48" width="3" height="10"/>
+    </g>
+    <!-- lit windows -->
+    <g>
+      <rect x="4" y="72" width="3" height="3" fill="#ffd166"/>
+      <rect x="12" y="79" width="3" height="3" fill="#05d9e8"/>
+      <rect x="27" y="76" width="3" height="3" fill="#ff2a6d"/>
+      <rect x="42" y="70" width="3" height="3" fill="#ffd166"/>
+      <rect x="44" y="78" width="3" height="3" fill="#05d9e8"/>
+      <rect x="81" y="74" width="3" height="3" fill="#ff2a6d"/>
+      <rect x="85" y="80" width="3" height="3" fill="#ffd166"/>
+      <rect x="98" y="62" width="3" height="3" fill="#05d9e8"/>
+      <rect x="98" y="70" width="3" height="3" fill="#ff2a6d"/>
+      <rect x="104" y="66" width="3" height="3" fill="#ffd166"/>
+      <rect x="117" y="72" width="3" height="3" fill="#05d9e8"/>
+      <rect x="122" y="78" width="3" height="3" fill="#ff2a6d"/>
+    </g>
+
+    <!-- neon grid floor -->
+    <rect x="0" y="88" width="128" height="40" fill="#120a1e"/>
+    <g stroke="url(#floor)" stroke-width="1.6" fill="none">
+      <path d="M64 88 L-30 128M64 88 L14 128M64 88 L46 128M64 88 L82 128M64 88 L114 128M64 88 L158 128"/>
+      <path d="M0 95h128M0 103h128M0 113h128M0 125h128"/>
+    </g>
+    <rect x="0" y="86" width="128" height="3" fill="#ff2a6d"/>
+  </g>
+
+  <!-- HUD frame -->
+  <rect x="4.5" y="4.5" width="119" height="119" rx="21.5" fill="none" stroke="#ff2a6d" stroke-width="3"/>
+  <g stroke="#05d9e8" stroke-width="4" fill="none" stroke-linecap="square">
+    <path d="M14 30V20h10"/>
+    <path d="M114 98v10h-10"/>
+  </g>
+</svg>
