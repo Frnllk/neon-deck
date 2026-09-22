@@ -29,8 +29,8 @@ void main(){
     float t = (uv.y-uHz)/(1.-uHz);
     vec3 nTop = mix(vec3(0.015,0.01,0.05), uBg, 0.5);
     vec3 nHz  = mix(vec3(0.10,0.04,0.20), uA, 0.28);
-    vec3 dTop = vec3(0.09,0.22,0.42);
-    vec3 dHz  = mix(vec3(0.62,0.76,0.88), uB, 0.18);
+    vec3 dTop = vec3(0.16,0.35,0.62);
+    vec3 dHz  = mix(vec3(0.80,0.88,0.96), uB, 0.16);
     vec3 gTop = vec3(0.10,0.04,0.25);
     vec3 gHz  = mix(vec3(1.0,0.45,0.2), uA, 0.45);
     vec3 top = mix(mix(nTop,dTop,day), gTop, gold*0.85);
@@ -178,7 +178,7 @@ void main(){
     const day = smooth(-0.2, 0.5, S.sun);
     const gold = Math.exp(-(((S.sun - 0.02) / 0.2) ** 2));
     const nHz = mixc([0.1, 0.04, 0.2], A, 0.28);
-    const dHz = mixc([0.62, 0.76, 0.88], B, 0.18);
+    const dHz = mixc([0.80, 0.88, 0.96], B, 0.16);
     const gHz = mixc([1, 0.45, 0.2], A, 0.45);
     return mixc(mixc(nHz, dHz, day), gHz, gold);
   }
