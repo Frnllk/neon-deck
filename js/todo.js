@@ -31,7 +31,7 @@
     });
     const open = todos.filter((t) => !t.done).length;
     NX.$('#todo-count').textContent = open;
-    NX.$('#todo-stats').textContent = `${open} активн · ${todos.length - open} готово`;
+    NX.$('#todo-stats').textContent = NX.t('{n} активн · {m} готово', { n: open, m: todos.length - open });
     NX.emit('todos', open);
   }
 

@@ -75,12 +75,12 @@
         ascii,
         NX.h('div', { class: 'w-temp' },
           NX.h('div', { class: 'w-deg', text: sign(c.temperature_2m) }),
-          NX.h('div', { class: 'w-desc', text: DESC[c.weather_code] || '—' }),
-          NX.h('div', { class: 'w-feel', text: `ощущается ${sign(c.apparent_temperature)}` }))),
+          NX.h('div', { class: 'w-desc', text: NX.t(DESC[c.weather_code] || '—') }),
+          NX.h('div', { class: 'w-feel', text: NX.t('ощущается {t}', { t: sign(c.apparent_temperature) }) }))),
       NX.h('div', { class: 'w-stats' },
-        stat('ВЕТЕР', `${c.wind_speed_10m.toFixed(1)} м/с ${WDIR[Math.round(c.wind_direction_10m / 45) % 8]}`),
+        stat('ВЕТЕР', NX.t('{v} м/с {d}', { v: c.wind_speed_10m.toFixed(1), d: WDIR[Math.round(c.wind_direction_10m / 45) % 8] })),
         stat('ВЛАЖН', `${c.relative_humidity_2m}%`),
-        stat('ДАВЛ', `${Math.round(c.surface_pressure * 0.750062)} мм`),
+        stat('ДАВЛ', NX.t('{n} мм', { n: Math.round(c.surface_pressure * 0.750062) })),
         stat('ВОСХОД', hm(sr)),
         stat('ЗАКАТ', hm(ss)),
         stat('UV', String(Math.round(d.uv_index_max[0] ?? 0)))),
@@ -136,7 +136,7 @@
       const a = ((d.temperature_2m_min[i] - lo) / (hi - lo || 1)) * 100;
       const b = ((d.temperature_2m_max[i] - lo) / (hi - lo || 1)) * 100;
       const pp = d.precipitation_probability_max[i];
-      wrap.append(NX.h('div', { class: 'w-day', title: `${DESC[d.weather_code[i]] || ''}${pp ? ` · осадки ${pp}%` : ''}` },
+      wrap.append(NX.h('div', { class: 'w-day', title: pp ? NX.t('{desc} · осадки {pp}%', { desc: NX.t(DESC[d.weather_code[i]] || ''), pp }) : NX.t(DESC[d.weather_code[i]] || '') },
         NX.h('span', { class: 'dn' }, DN[dt.getDay()], ' ', NX.h('b', { class: 'gl', text: GLYPH[artFor(d.weather_code[i], 1)] })),
         NX.h('span', { class: 'hi', text: sign(d.temperature_2m_max[i]) }),
         NX.h('span', { class: 'lo' }, sign(d.temperature_2m_min[i]), pp ? NX.h('i', { class: 'pp', text: ` ${pp}%` }) : null),
@@ -158,7 +158,7 @@
       render(data);
     } catch (e) {
       console.warn('weather', e);
-      if (!cache) NX.$('#w-body').innerHTML = '<div class="loading err">НЕТ СИГНАЛА · проверь сеть</div>';
+      if (!cache) NX.$('#w-body').replaceChildren(NX.h('div', { class: 'loading err', text: 'НЕТ СИГНАЛА · проверь сеть' }));
       NX.$('#chip-net').textContent = 'NET ○ OFFLINE';
       NX.$('#chip-net').classList.add('bad');
     }

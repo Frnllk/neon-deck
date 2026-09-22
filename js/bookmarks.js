@@ -210,7 +210,7 @@
       if (!groups.length) return NX.toast('На панели закладок пусто', 'err');
       NX.data.bookmarks = groups;
       save(); render();
-      NX.toast(`Импортировано групп: ${groups.length}`);
+      NX.toast(NX.t('Импортировано групп: {n}', { n: groups.length }));
     },
   };
 })(window.NX);

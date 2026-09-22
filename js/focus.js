@@ -14,18 +14,18 @@
     const left = remaining();
     const total = DUR[P.mode];
     NX.$('#pomo-time').textContent = `${NX.pad(Math.floor(left / 60))}:${NX.pad(left % 60)}`;
-    NX.$('#pomo-mode').textContent = LABEL[P.mode];
-    NX.$('#pomo-start').textContent = P.running ? 'ПАУЗА' : left < total ? 'ДАЛЬШЕ' : 'СТАРТ';
+    NX.$('#pomo-mode').textContent = NX.t(LABEL[P.mode]);
+    NX.$('#pomo-start').textContent = NX.t(P.running ? 'ПАУЗА' : left < total ? 'ДАЛЬШЕ' : 'СТАРТ');
     const ring = NX.$('#pomo-ring');
     ring.style.strokeDasharray = CIRC;
     ring.style.strokeDashoffset = CIRC * (left / total);
     NX.$('#utils').classList.toggle('running', P.running);
     NX.$('#utils').dataset.mode = P.mode;
-    NX.$('#pomo-count').textContent = '▰'.repeat(Math.min(P.done, 8)) + '▱'.repeat(Math.max(0, 4 - P.done)) + ` ${P.done} сегодня`;
+    NX.$('#pomo-count').textContent = '▰'.repeat(Math.min(P.done, 8)) + '▱'.repeat(Math.max(0, 4 - P.done)) + ' ' + NX.t('{n} сегодня', { n: P.done });
     NX.$('#pomo-badge').textContent = P.running ? NX.$('#pomo-time').textContent : '';
-    if (P.running) document.title = `${NX.$('#pomo-time').textContent} · ${LABEL[P.mode]}`;
-    else if (document.title !== 'Новая вкладка') document.title = 'Новая вкладка';
-    NX.emit('pomo', P.running ? `${LABEL[P.mode]} ${NX.$('#pomo-time').textContent}` : null);
+    if (P.running) document.title = `${NX.$('#pomo-time').textContent} · ${NX.t(LABEL[P.mode])}`;
+    else if (document.title !== NX.t('Новая вкладка')) document.title = NX.t('Новая вкладка');
+    NX.emit('pomo', P.running ? `${NX.t(LABEL[P.mode])} ${NX.$('#pomo-time').textContent}` : null);
   }
 
   function tick() {

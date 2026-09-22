@@ -6,19 +6,23 @@ window.NX = window.NX || {};
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
+  // Strings on their way into the DOM get translated (see i18n.js).
+  const tr = (s) => (NX.t ? NX.t(String(s)) : String(s));
+
   function h(tag, attrs = {}, ...children) {
     const node = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs || {})) {
       if (v == null || v === false) continue;
       if (k === 'class') node.className = v;
-      else if (k === 'text') node.textContent = v;
+      else if (k === 'text') node.textContent = tr(v);
+      else if (k === 'title' || k === 'placeholder' || k === 'aria-label') node.setAttribute(k, tr(v));
       else if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
       else if (k === 'dataset') Object.assign(node.dataset, v);
       else node.setAttribute(k, v === true ? '' : v);
     }
     for (const c of children.flat()) {
       if (c == null || c === false) continue;
-      node.append(c.nodeType ? c : document.createTextNode(String(c)));
+      node.append(c.nodeType ? c : document.createTextNode(tr(c)));
     }
     return node;
   }
@@ -78,7 +82,7 @@ window.NX = window.NX || {};
   function toast(msg, kind = '') {
     const box = $('#toasts');
     if (!box) return;
-    const t = h('div', { class: `toast ${kind}` }, h('span', { class: 'toast-tag', text: kind === 'err' ? 'ERR' : 'SYS' }), msg);
+    const t = h('div', { class: `toast ${kind}` }, h('span', { class: 'toast-tag', text: kind === 'err' ? 'ERR' : 'SYS' }), tr(msg));
     box.append(t);
     setTimeout(() => t.classList.add('out'), 2600);
     setTimeout(() => t.remove(), 3100);

@@ -57,37 +57,37 @@
     const out = [];
     const t = q.trim();
     if (!t) {
-      NX.data.history.slice(0, 5).forEach((h) => out.push({ kind: 'hist', icon: '↺', label: h, sub: 'недавнее', go: (nt) => search(h, nt) }));
+      NX.data.history.slice(0, 5).forEach((h) => out.push({ kind: 'hist', icon: '↺', label: h, sub: NX.t('недавнее'), go: (nt) => search(h, nt) }));
       return out;
     }
 
     const c = calc(t);
-    if (c !== null) out.push({ kind: 'calc', icon: '=', label: `= ${c.toLocaleString('ru-RU', { maximumFractionDigits: 10 })}`, sub: 'Enter — скопировать', go: () => { navigator.clipboard.writeText(String(c)).then(() => NX.toast(`Скопировано: ${c}`)); } });
+    if (c !== null) out.push({ kind: 'calc', icon: '=', label: `= ${c.toLocaleString('ru-RU', { maximumFractionDigits: 10 })}`, sub: NX.t('Enter — скопировать'), go: () => { navigator.clipboard.writeText(String(c)).then(() => NX.toast(NX.t('Скопировано: {v}', { v: c }))); } });
 
     const b = parseBang(t);
     if (b && b.bang) {
-      out.push({ kind: 'bang', icon: '!', label: b.rest ? `${b.bang.name}: ${b.rest}` : `Открыть ${b.bang.name}`, sub: `!${b.bang.k}`, go: (nt) => { if (b.rest) addHistory(t); NX.openUrl(b.rest ? fill(b.bang.url, b.rest) : new URL(b.bang.url.replace('%s', '')).origin, nt); } });
+      out.push({ kind: 'bang', icon: '!', label: b.rest ? `${b.bang.name}: ${b.rest}` : NX.t('Открыть {name}', { name: b.bang.name }), sub: `!${b.bang.k}`, go: (nt) => { if (b.rest) addHistory(t); NX.openUrl(b.rest ? fill(b.bang.url, b.rest) : new URL(b.bang.url.replace('%s', '')).origin, nt); } });
     } else if (b && b.partial !== undefined && !b.rest) {
       bangs().filter((x) => x.k.startsWith(b.partial.toLowerCase())).slice(0, 6)
         .forEach((x) => out.push({ kind: 'bang', icon: '!', label: `!${x.k}`, sub: x.name, complete: `!${x.k} ` }));
     }
 
     const sub = /^r\/([\w]+)$/i.exec(t);
-    if (sub) out.push({ kind: 'url', icon: '↗', label: `reddit.com/r/${sub[1]}`, sub: 'сабреддит', go: (nt) => NX.openUrl(`https://www.reddit.com/r/${sub[1]}/`, nt) });
+    if (sub) out.push({ kind: 'url', icon: '↗', label: `reddit.com/r/${sub[1]}`, sub: NX.t('сабреддит'), go: (nt) => NX.openUrl(`https://www.reddit.com/r/${sub[1]}/`, nt) });
 
     const url = asUrl(t);
-    if (url) out.push({ kind: 'url', url, icon: '↗', label: url.replace(/^https?:\/\//, ''), sub: 'перейти', go: (nt) => NX.openUrl(url, nt) });
+    if (url) out.push({ kind: 'url', url, icon: '↗', label: url.replace(/^https?:\/\//, ''), sub: NX.t('перейти'), go: (nt) => NX.openUrl(url, nt) });
 
     const bm = allLinks().map((l) => ({ l, s: Math.max(NX.fuzzy(t, l.name), NX.fuzzy(t, NX.domainOf(l.url)) - 5) }))
       .filter((x) => x.s > 3).sort((a, b) => b.s - a.s).slice(0, 5);
-    const web = { kind: 'web', icon: '⌕', label: t, sub: `искать в ${engine().name}`, go: (nt) => search(t, nt) };
+    const web = { kind: 'web', icon: '⌕', label: t, sub: NX.t('искать в {engine}', { engine: engine().name }), go: (nt) => search(t, nt) };
     const strong = bm.length && bm[0].s >= 100 && !(b && b.bang) && c === null && !url;
     if (strong) out.push(bmItem(bm.shift().l));
     if (!(b && (b.bang || b.partial !== undefined))) out.push(web);
     bm.forEach((x) => out.push(bmItem(x.l)));
 
     NX.data.history.filter((h) => h !== t && h.toLowerCase().includes(t.toLowerCase())).slice(0, 3)
-      .forEach((h) => out.push({ kind: 'hist', icon: '↺', label: h, sub: 'недавнее', go: (nt) => search(h, nt) }));
+      .forEach((h) => out.push({ kind: 'hist', icon: '↺', label: h, sub: NX.t('недавнее'), go: (nt) => search(h, nt) }));
     return out;
   }
 
@@ -147,14 +147,14 @@
     NX.settings.search.engine = keys[(i + dir + keys.length) % keys.length];
     NX.saveSettings();
     paintEngine();
-    NX.toast(`Поиск: ${engine().name}`);
+    NX.toast(NX.t('Поиск: {engine}', { engine: engine().name }));
     NX.sfx('tick');
     update();
   }
   function paintEngine() {
     const e = NX.$('#engine');
     e.textContent = engine().short;
-    e.title = `${engine().name} — клик или Tab на пустой строке, чтобы сменить`;
+    e.title = NX.t('{name} — клик или Tab на пустой строке, чтобы сменить', { name: engine().name });
   }
 
   NX.Search = {

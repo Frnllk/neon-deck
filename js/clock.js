@@ -20,9 +20,9 @@
     const el = NX.$('#clock');
     el.textContent = `${hh}:${mm}`;
     el.dataset.text = `${hh}:${mm}`;
-    NX.$('#date').textContent = `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}`;
+    NX.$('#date').textContent = NX.t('{day}, {date} {month}', { day: NX.t(DAYS[d.getDay()]), date: d.getDate(), month: NX.t(MONTHS[d.getMonth()]) });
     const name = (NX.settings.name || '').trim();
-    NX.$('#greet').textContent = `${greeting(d.getHours())}, ${name || 'раннер'}.`;
+    NX.$('#greet').textContent = NX.t('{greet}, {name}.', { greet: NX.t(greeting(d.getHours())), name: name || NX.t('раннер') });
     const off = -d.getTimezoneOffset() / 60;
     NX.$('#hero-tz').textContent = `UTC${off >= 0 ? '+' : ''}${off} · ${Intl.DateTimeFormat().resolvedOptions().timeZone || ''}`;
     const p = (d.getHours() * 60 + d.getMinutes()) / 1440;

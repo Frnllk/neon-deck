@@ -66,12 +66,12 @@
   function paintTicker() {
     const parts = [];
     const d = new Date();
-    if (ticker.weather) parts.push(`◉ ${ticker.weather.place.toUpperCase()} ${ticker.weather.temp} · ${ticker.weather.desc.toUpperCase()} · ЗАВТРА ${ticker.weather.tomorrow}`);
-    if (ticker.todos != null) parts.push(`◆ КВЕСТОВ АКТИВНО: ${ticker.todos}`);
+    if (ticker.weather) parts.push(NX.t('◉ {place} {temp} · {desc} · ЗАВТРА {tomorrow}', { place: ticker.weather.place.toUpperCase(), temp: ticker.weather.temp, desc: NX.t(ticker.weather.desc).toUpperCase(), tomorrow: ticker.weather.tomorrow }));
+    if (ticker.todos != null) parts.push(NX.t('◆ КВЕСТОВ АКТИВНО: {n}', { n: ticker.todos }));
     if (ticker.pomo) parts.push(`◷ ${ticker.pomo}`);
     parts.push(`▲ ${NX.THEMES[NX.settings.theme].name.toUpperCase()} MODE`);
     const tips = [...TIPS].sort(() => Math.random() - 0.5).slice(0, 3);
-    parts.push(...tips.map((t) => `// ${t}`));
+    parts.push(...tips.map((t) => `// ${NX.t(t)}`));
     parts.push(`${d.getFullYear()}.${NX.pad(d.getMonth() + 1)}.${NX.pad(d.getDate())}`);
     const copy = (hidden) => NX.h('div', { 'aria-hidden': hidden ? 'true' : null }, parts.flatMap((p) => [NX.h('span', { text: p }), NX.h('b', { text: '✦' })]));
     NX.$('#ticker').replaceChildren(copy(false), copy(true));
@@ -139,6 +139,7 @@
   async function main() {
     NX.data = await NX.Store.load();
     NX.settings = NX.data.settings;
+    NX.translateDom();
     const theme = applyTheme();
     lastTheme = NX.settings.theme;
     lastScene = JSON.stringify(NX.settings.scene);
@@ -186,5 +187,5 @@
     hotkeys();
   }
 
-  main().catch((e) => { console.error(e); document.body.classList.add('ready'); NX.toast('Ошибка запуска: ' + e.message, 'err'); });
+  main().catch((e) => { console.error(e); document.body.classList.add('ready'); NX.toast(NX.t('Ошибка запуска: {e}', { e: e.message }), 'err'); });
 })(window.NX);

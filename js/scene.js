@@ -127,7 +127,7 @@ void main(){
     high: { shader: 1.0,  dpr: 2,    particles: 1.2,  fpsCap: 120 },
   };
 
-  const SIGN_WORDS = ['БАР', '24/7', 'ОТЕЛЬ', 'NEON', 'КИНО', 'OPEN', 'ЛАПША', 'CLUB', 'DECK', 'СУШИ', 'ТАКСИ', 'ХОСТЕЛ', 'RAMEN', 'VHS'];
+  const signWords = () => NX.SIGNS[NX.I18n.lang] || NX.SIGNS.en;
 
   const S = {
     opts: null, theme: null,
@@ -269,7 +269,8 @@ void main(){
           }
         }
         // neon signs on mid/near buildings
-        const word = SIGN_WORDS[Math.floor(sign[0] * SIGN_WORDS.length)];
+        const words = signWords();
+        const word = words[Math.floor(sign[0] * words.length)];
         const vertical = sign[1] < 0.6;
         const size = Math.round(9 + L.depth * 6);
         // must match drawSign's box: the whole sign has to sit on the facade, above the ground

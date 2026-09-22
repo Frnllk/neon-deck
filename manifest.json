@@ -4,7 +4,7 @@
   "version": "1.0.1",
   "author": "Frnllk",
   "homepage_url": "https://github.com/Frnllk/neon-deck",
-  "description": "Киберпанк-HUD новая вкладка: живая сцена, закладки, погода, поиск, задачи.",
+  "description": "Cyberpunk HUD new tab: living neon city, bookmarks, weather, search and quests.",
   "icons": {
     "48": "icons/logo.svg",
     "96": "icons/logo.svg",

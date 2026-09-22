@@ -21,47 +21,62 @@
     perplexity: { name: 'Perplexity', short: 'P', url: 'https://www.perplexity.ai/search?q=%s' },
   };
 
-  const DEFAULT_BANGS = [
+  // Defaults differ per language: a translated link name must never point at
+  // a site in the other language.
+  const bangs = (lang) => [
     ['g', 'Google', 'https://www.google.com/search?q=%s'],
     ['d', 'DuckDuckGo', 'https://duckduckgo.com/?q=%s'],
-    ['ya', 'Яндекс', 'https://yandex.ru/search/?text=%s'],
     ['y', 'YouTube', 'https://www.youtube.com/results?search_query=%s'],
-    ['w', 'Википедия', 'https://ru.wikipedia.org/w/index.php?search=%s'],
-    ['we', 'Wikipedia EN', 'https://en.wikipedia.org/w/index.php?search=%s'],
     ['gh', 'GitHub', 'https://github.com/search?q=%s'],
     ['r', 'Reddit', 'https://www.reddit.com/search/?q=%s'],
     ['so', 'Stack Overflow', 'https://stackoverflow.com/search?q=%s'],
-    ['mdn', 'MDN', 'https://developer.mozilla.org/ru/search?q=%s'],
-    ['t', 'Переводчик', 'https://translate.google.com/?sl=auto&tl=ru&text=%s'],
-    ['te', 'Translate → EN', 'https://translate.google.com/?sl=auto&tl=en&text=%s'],
-    ['i', 'Картинки', 'https://www.google.com/search?tbm=isch&q=%s'],
-    ['m', 'Карты', 'https://yandex.ru/maps/?text=%s'],
     ['c', 'Claude', 'https://claude.ai/new?q=%s'],
     ['tw', 'Twitch', 'https://www.twitch.tv/search?term=%s'],
     ['px', 'Pinterest', 'https://www.pinterest.com/search/pins/?q=%s'],
+    ...(lang === 'ru' ? [
+      ['ya', 'Яндекс', 'https://yandex.ru/search/?text=%s'],
+      ['w', 'Википедия', 'https://ru.wikipedia.org/w/index.php?search=%s'],
+      ['we', 'Wikipedia EN', 'https://en.wikipedia.org/w/index.php?search=%s'],
+      ['mdn', 'MDN', 'https://developer.mozilla.org/ru/search?q=%s'],
+      ['t', 'Переводчик', 'https://translate.google.com/?sl=auto&tl=ru&text=%s'],
+      ['i', 'Картинки', 'https://www.google.com/search?tbm=isch&q=%s'],
+      ['m', 'Карты', 'https://yandex.ru/maps/?text=%s'],
+    ] : [
+      ['w', 'Wikipedia', 'https://en.wikipedia.org/w/index.php?search=%s'],
+      ['mdn', 'MDN', 'https://developer.mozilla.org/en-US/search?q=%s'],
+      ['t', 'Translate', 'https://translate.google.com/?sl=auto&tl=en&text=%s'],
+      ['i', 'Images', 'https://www.google.com/search?tbm=isch&q=%s'],
+      ['m', 'Maps', 'https://www.google.com/maps/search/%s'],
+      ['hn', 'Hacker News', 'https://hn.algolia.com/?q=%s'],
+    ]),
   ].map(([k, name, url]) => ({ k, name, url }));
 
   const L = (name, url) => ({ id: NX.uid(), name, url });
-  const DEFAULT_BOOKMARKS = [
-    { id: NX.uid(), name: 'dev', links: [L('github', 'https://github.com'), L('mdn', 'https://developer.mozilla.org/ru/'), L('stack overflow', 'https://stackoverflow.com'), L('хабр', 'https://habr.com/ru/')] },
-    { id: NX.uid(), name: 'media', links: [L('youtube', 'https://www.youtube.com'), L('twitch', 'https://www.twitch.tv'), L('reddit', 'https://www.reddit.com'), L('spotify', 'https://open.spotify.com')] },
-    { id: NX.uid(), name: 'tools', links: [L('claude', 'https://claude.ai'), L('translate', 'https://translate.google.com'), L('figma', 'https://www.figma.com'), L('pinterest', 'https://www.pinterest.com')] },
-    { id: NX.uid(), name: 'daily', links: [L('gmail', 'https://mail.google.com'), L('calendar', 'https://calendar.google.com'), L('карты', 'https://yandex.ru/maps'), L('r/startpages', 'https://www.reddit.com/r/startpages/')] },
+  const G = (name, links) => ({ id: NX.uid(), name, links });
+  const bookmarks = (lang) => [
+    G('dev', [L('github', 'https://github.com'), L('mdn', 'https://developer.mozilla.org/'), L('stack overflow', 'https://stackoverflow.com'),
+      lang === 'ru' ? L('хабр', 'https://habr.com/ru/') : L('hacker news', 'https://news.ycombinator.com')]),
+    G('media', [L('youtube', 'https://www.youtube.com'), L('twitch', 'https://www.twitch.tv'), L('reddit', 'https://www.reddit.com'), L('spotify', 'https://open.spotify.com')]),
+    G('tools', [L('claude', 'https://claude.ai'), L('translate', 'https://translate.google.com'), L('figma', 'https://www.figma.com'), L('pinterest', 'https://www.pinterest.com')]),
+    G('daily', [L('gmail', 'https://mail.google.com'), L('calendar', 'https://calendar.google.com'),
+      lang === 'ru' ? L('карты', 'https://yandex.ru/maps') : L('maps', 'https://www.google.com/maps'),
+      L('r/startpages', 'https://www.reddit.com/r/startpages/')]),
   ];
 
   NX.DEFAULTS = {
     settings: {
+      lang: 'en',
       name: '',
       theme: 'synthwave',
       scene: { enabled: true, quality: 'med', fps: 60, parallax: true, time: 'auto', weather: 'auto', cityMode: 'tab', seed: 2077, traffic: true },
       fx: { scanlines: true, glitch: true, noise: true, blur: true, boot: true },
       sfx: false,
       weather: { lat: 55.7558, lon: 37.6173, place: 'Москва' },
-      search: { engine: 'google', newTab: false, bangs: DEFAULT_BANGS },
+      search: { engine: 'google', newTab: false, bangs: null },
       deck: { title: 'Добро пожаловать в сеть.', imageMode: 'random', newTab: false },
       customCss: '',
     },
-    bookmarks: DEFAULT_BOOKMARKS,
+    bookmarks: null,
     todos: [
       { id: NX.uid(), text: 'Настроить город в SYS://CONFIG', done: false, main: true },
       { id: NX.uid(), text: 'Закинуть свою пиксель-арт гифку в карточку', done: false, main: false },
@@ -73,8 +88,8 @@
     history: [],
     wcache: null,
   };
-  NX.DEFAULT_BANGS = DEFAULT_BANGS;
-  NX.DEFAULT_BOOKMARKS = DEFAULT_BOOKMARKS;
+  NX.defaultBangs = () => bangs(NX.I18n.lang);
+  NX.defaultBookmarks = () => bookmarks(NX.I18n.lang);
 
   function merge(base, over) {
     if (Array.isArray(base) || typeof base !== 'object' || base === null) return over === undefined ? base : over;
@@ -86,6 +101,15 @@
   }
 
   const clone = (v) => (v === undefined ? v : JSON.parse(JSON.stringify(v)));
+
+  // Defaults are written in Russian; on a first run they are translated into
+  // the interface language, after which they are the user's own data.
+  function deepT(v) {
+    if (typeof v === 'string') return NX.t(v);
+    if (Array.isArray(v)) return v.map(deepT);
+    if (v && typeof v === 'object') { for (const k of Object.keys(v)) v[k] = deepT(v[k]); return v; }
+    return v;
+  }
 
   async function rawGet(key) {
     if (ext) { const r = await ext.get(key); return r[key]; }
@@ -99,11 +123,17 @@
   const listeners = {};
   const Store = {
     async load() {
-      const keys = Object.keys(NX.DEFAULTS);
-      const out = {};
-      for (const k of keys) {
+      const stored = await rawGet('settings');
+      const settings = merge(clone(NX.DEFAULTS.settings), stored);
+      NX.settings = settings;
+      NX.I18n.setLang(settings.lang);
+      if (stored === undefined) deepT(settings);
+      if (!settings.search.bangs) settings.search.bangs = bangs(NX.I18n.lang);
+      const out = { settings };
+      for (const k of Object.keys(NX.DEFAULTS)) {
+        if (k === 'settings') continue;
         const v = await rawGet(k);
-        out[k] = k === 'settings' ? merge(clone(NX.DEFAULTS.settings), v) : v === undefined ? clone(NX.DEFAULTS[k]) : v;
+        out[k] = v !== undefined ? v : k === 'bookmarks' ? bookmarks(NX.I18n.lang) : deepT(clone(NX.DEFAULTS[k]));
       }
       return out;
     },

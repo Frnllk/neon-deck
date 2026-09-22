@@ -41,6 +41,11 @@
     const body = NX.$('#settings-body');
     body.innerHTML = '';
 
+    // ── language ──
+    body.append(section('ЯЗЫК',
+      seg('Язык интерфейса', [['auto', 'AUTO'], ['en', 'EN'], ['ru', 'RU']], () => S().lang,
+        (v) => { S().lang = v; setTimeout(() => location.reload(), 80); })));
+
     // ── profile ──
     body.append(section('ПРОФИЛЬ',
       text('Имя', () => S().name, (v) => { S().name = v; NX.Clock.refresh(); }, 'как к тебе обращаться'),
@@ -73,7 +78,7 @@
       } }, '↻ ДРУГОЙ'),
       h('button', { class: 'btn ghost', title: 'Показывать этот город на всех вкладках', onclick: () => {
         S().scene.seed = NX.Scene.citySeed(); S().scene.cityMode = 'fixed'; NX.saveSettings(); build();
-        NX.toast(`Город #${S().scene.seed} закреплён`);
+        NX.toast(NX.t('Город #{n} закреплён', { n: S().scene.seed }));
       } }, '📌 ЗАКРЕПИТЬ'));
     body.append(section('СЦЕНА',
       toggle('Анимация', () => S().scene.enabled, (v) => (S().scene.enabled = v)),
@@ -81,7 +86,7 @@
       select('Лимит FPS', [[30, '30'], [60, '60'], [120, '120']], () => S().scene.fps, (v) => (S().scene.fps = +v)),
       toggle('Параллакс от мыши', () => S().scene.parallax, (v) => (S().scene.parallax = v)),
       toggle('Летающий трафик', () => S().scene.traffic, (v) => (S().scene.traffic = v)),
-      seg('Время суток', [['auto', 'АВТО'], ['dawn', 'РАССВЕТ'], ['day', 'ДЕНЬ'], ['dusk', 'ЗАКАТ'], ['night', 'НОЧЬ']], () => S().scene.time, (v) => (S().scene.time = v)),
+      seg('Время суток', [['auto', 'АВТО'], ['dawn', 'РАССВЕТ'], ['day', 'ДЕНЬ'], ['dusk', 'СУМЕРКИ'], ['night', 'НОЧЬ']], () => S().scene.time, (v) => (S().scene.time = v)),
       seg('Погода в сцене', [['auto', 'АВТО'], ['clear', 'ЯСНО'], ['clouds', 'ОБЛАКА'], ['rain', 'ДОЖДЬ'], ['storm', 'ГРОЗА'], ['snow', 'СНЕГ'], ['fog', 'ТУМАН']], () => S().scene.weather, (v) => (S().scene.weather = v)),
       seg('Город', [['tab', 'НОВЫЙ НА КАЖДОЙ ВКЛАДКЕ'], ['fixed', 'ВСЕГДА ОДИН']], () => S().scene.cityMode, (v) => { S().scene.cityMode = v; setTimeout(() => { NX.Pixel.regen(); seedLabel.textContent = `#${NX.Scene.citySeed()}`; }); }),
       row('Текущий город', seedRow)));
@@ -90,7 +95,7 @@
     const results = h('ul', { class: 'geo-results' });
     const cityIn = h('input', { type: 'text', placeholder: 'найти город…' });
     const cur = h('span', { class: 'mono', text: S().weather.place });
-    const setPlace = (p) => { S().weather = { lat: p.lat, lon: p.lon, place: p.name }; cur.textContent = p.name; results.innerHTML = ''; cityIn.value = ''; NX.saveSettings(); NX.Weather.reload(); NX.toast(`Локация: ${p.name}`); };
+    const setPlace = (p) => { S().weather = { lat: p.lat, lon: p.lon, place: p.name }; cur.textContent = p.name; results.innerHTML = ''; cityIn.value = ''; NX.saveSettings(); NX.Weather.reload(); NX.toast(NX.t('Локация: {place}', { place: p.name })); };
     cityIn.addEventListener('input', NX.debounce(async () => {
       const q = cityIn.value.trim();
       results.innerHTML = '';
@@ -122,7 +127,7 @@
       select('Поисковик', Object.entries(NX.ENGINES).map(([k, e]) => [k, e.name]), () => S().search.engine, (v) => { S().search.engine = v; NX.Search.paintEngine(); }),
       toggle('Открывать в новой вкладке', () => S().search.newTab, (v) => (S().search.newTab = v)),
       h('div', { class: 'cfg-row col' }, h('div', { class: 'cfg-label' }, 'Бэнги', h('small', { text: 'ключ | название | адрес с %s — пиши «!y котики» или «котики !y»' })), bangs),
-      h('button', { class: 'linkbtn', onclick: () => { S().search.bangs = JSON.parse(JSON.stringify(NX.DEFAULT_BANGS)); NX.saveSettings(); build(); } }, 'вернуть стандартные бэнги')));
+      h('button', { class: 'linkbtn', onclick: () => { S().search.bangs = NX.defaultBangs(); NX.saveSettings(); build(); } }, 'вернуть стандартные бэнги')));
 
     // ── images ──
     const grid = h('div', { class: 'gallery' });
@@ -158,7 +163,7 @@
       toggle('Открывать в новой вкладке', () => S().deck.newTab, (v) => { S().deck.newTab = v; NX.Deck.render(); }),
       h('div', { class: 'inline' },
         h('button', { class: 'btn', onclick: () => NX.Deck.importFirefox() }, '⇩ ИЗ ПАНЕЛИ FIREFOX'),
-        h('button', { class: 'btn ghost', onclick: () => { if (confirm('Сбросить закладки к стандартным?')) { NX.data.bookmarks = JSON.parse(JSON.stringify(NX.DEFAULT_BOOKMARKS)); NX.Store.set('bookmarks', NX.data.bookmarks); NX.Deck.render(); } } }, 'СБРОС')),
+        h('button', { class: 'btn ghost', onclick: () => { if (confirm(NX.t('Сбросить закладки к стандартным?'))) { NX.data.bookmarks = NX.defaultBookmarks(); NX.Store.set('bookmarks', NX.data.bookmarks); NX.Deck.render(); } } }, 'СБРОС')),
       h('small', { class: 'muted', text: 'Импорт берёт папки с панели закладок: каждая папка станет группой. Редактирование — клавиша E.' })));
 
     // ── data ──
@@ -178,7 +183,7 @@
           document.body.append(a); a.click(); a.remove();
         } }, '⇧ ЭКСПОРТ'),
         h('button', { class: 'btn ghost', onclick: () => imp.click() }, '⇩ ИМПОРТ'), imp,
-        h('button', { class: 'btn danger', onclick: async () => { if (confirm('Стереть все настройки, задачи и закладки?')) { await NX.Store.reset(); location.reload(); } } }, 'СБРОС ВСЕГО'))));
+        h('button', { class: 'btn danger', onclick: async () => { if (confirm(NX.t('Стереть все настройки, задачи и закладки?'))) { await NX.Store.reset(); location.reload(); } } }, 'СБРОС ВСЕГО'))));
 
     // ── custom css ──
     const cssTa = h('textarea', { class: 'code', rows: 6, spellcheck: 'false', placeholder: '.deck-title { color: hotpink; }' });
